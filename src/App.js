@@ -6,9 +6,9 @@ import Dropper from './Components/Dropper';
 function App() {
   return (
     <>
-    <div style={{ display:"flex", justifyContent: "center",height: '100vh', alignContent: "center",border: "2px solid green"}}>
+    <div className="flex justify-center h-[100vh] " >
     <Flow/>
-    <Dropper/>
+  
     </div>
     </>
   );

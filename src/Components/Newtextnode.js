@@ -31,6 +31,7 @@ const Newtextnode = ({data, id}) => {
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
+      
     </button>
            Hello
            <p>
@@ -65,7 +66,7 @@ const Newtextnode = ({data, id}) => {
                 <path className="cls-1 " d="M8,2L2,14H14L8,2Z"></path>
               </g>
             </svg>
-          {label}
+        
       </div>
     </>
   );

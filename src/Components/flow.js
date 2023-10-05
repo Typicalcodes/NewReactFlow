@@ -15,94 +15,94 @@ import customNode from "./customnode";
 import customlineComponent from "./connectioncomponent";
 import "./btnstyle.css";
 
-import "./styles.css"
+import "./styles.css";
 import Floatingedge from "./floatingedge";
+import Dropper from "./Dropper";
+import newnoder from "./newnode";
+import CustomEdge from "./customedge";
 
-const newnode = { textupdate: Newtextnode, CustomNode: customNode };
+const newnode = {
+  textupdate: Newtextnode,
+  CustomNode: customNode,
+  Newnode: newnoder,
+};
+
 const newedge = {
   floating: Floatingedge,
+  closeedge: CustomEdge,
 };
+
 const initialnode = [
-  {
-    id: "c",
-    type: "textupdate",
-    position: { x: 0, y: 0 },
-    data: { label: "Green" },
-  },
-  {
-    id: "a",
-    type: "output",
-    position: { x: 0, y: 0 },
-  },
-  {
-    id: "b",
-    type: "input",
-    position: { x: 150, y: 150 },
-  },
-  {
-    id: "33",
-    type: "CustomNode",
-    position: { x: 200, y: 200 },
-  },
   {
     id: "34",
     type: "CustomNode",
     position: { x: 300, y: 100 },
   },
 ];
+
 let nodeid = 0;
-const edges = [
-  {
-    style: { strokeWidth: 3, stroke: "black", },
-    type: "floating",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      color: "black",
-    },
-  },
-];
+
 const connectionLineStyle = {
   strokeWidth: 3,
-  stroke: "black",
+  stroke: "white",
 };
+
 const initialEdges = [];
+
 const getId = () => `dndnode_${nodeid++}`;
+
+//The Main Component
 const Flow = () => {
-  const [edge, setEdge, onEdgesChange] = useEdgesState(initialEdges);
-  const [node, setNode, onNodesChange] = useNodesState(initialnode);                
+  // all states
+  const [edges, setEdge, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNode, onNodesChange] = useNodesState(initialnode);
   const reactflowbox = useRef();
-  const reactflowinstance = useReactFlow();
+  const [reactflowinstance, setReactflowinstance] = useState(null);
 
-  const dragoverstart = useCallback((event)=>{
-    event.preventDefault(); 
-    event.dataTransfer.dropEffect = 'move';  
-  },[])
+  // drag function
+  const dragoverstart = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
 
-  const onDrop = useCallback((event)=>{
-    
+  const edgesd = {
+    style: { strokeWidth: 3, stroke: "white" },
+
+    type: "closeedge",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: "white",
+    },
+  };
+  // drop function
+  const onDrop = useCallback(
+    (event) => {
       event.preventDefault();
-      const boundingbox  = reactflowbox.current.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
+      const boundingbox = reactflowbox.current.getBoundingClientRect();
+      const type = event.dataTransfer.getData("application/reactflow");
+      const color = event.dataTransfer.getData("application/reactflowcolor");
+      const label = event.dataTransfer.getData("application/reactflowlabel");
 
-      if(typeof type === 'undefined' || !type){
+      if (typeof type === "undefined" || !type) {
         return;
       }
 
       const position = reactflowinstance.project({
         x: event.clientX - boundingbox.left,
-        y: event.clinetY - boundingbox.top
-      })
+        y: event.clientY - boundingbox.top,
+      });
       const nextnode = {
         id: getId(),
         type,
         position,
-        data: {label: `${type} node`}
+        data: { label: `${label}`, color: `${color}` },
       };
-      setNode((prev)=>[prev,nextnode])
-       
- 
-  },[reactflowinstance])
- 
+      setNode((prev) => prev.concat(nextnode));
+    },
+    [reactflowinstance]
+  );
+
+  // adding edge
   const addedge = useCallback(() => {
     const id = `${++nodeid}`;
     const newnode = {
@@ -115,35 +115,39 @@ const Flow = () => {
   }, []);
 
   const onConnect = useCallback(
-    (params) => setEdge((eds) => addEdge(params, eds)),
+    (params) => {console.log(params);
+    if(params.source !== params.target) {setEdge((eds) => addEdge(params, eds))}},
     [setEdge]
   );
   return (
-    <div style={{ width: "700px", height: "700px", border: "2px solid black" }}>
-      <ReactFlow
-        style={{ backgroundColor: "#D80032" }}
-        edges={edge}
-        nodes={node}
-        onConnect={onConnect}
-        edgeTypes={newedge}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        defaultEdgeOptions={edges}
-        fitView
-        onDrop={onDrop}
-        nodeTypes={newnode}
-        onDragOver={dragoverstart}
-        onInit={reactflowinstance}
-        defaultNodes={initialnode}
-        connectionLineComponent={customlineComponent}
-        connectionLineStyle={connectionLineStyle}
+    <div className="flex flex-col md:flex-row-reverse  space-x-10 items-center gap-5 p-2">
+      <div
+        className="md:h-[40rem] md:w-[40rem] h-full w-full m-auto"
+        ref={reactflowbox}
       >
-        <Background />
-        <Controls />
-        <button className="btn-add" onClick={addedge}>
-          Add node
-        </button>
-      </ReactFlow>
+        <ReactFlow
+          style={{ backgroundColor: "#D80032", border: "5px solid gray" }}
+          edges={edges}
+          nodes={nodes}
+          onConnect={onConnect}
+          edgeTypes={newedge}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          defaultEdgeOptions={edgesd}
+          fitView
+          onDrop={onDrop}
+          nodeTypes={newnode}
+          onDragOver={dragoverstart}
+          onInit={setReactflowinstance}
+          defaultNodes={initialnode}
+          connectionLineComponent={customlineComponent}
+          connectionLineStyle={connectionLineStyle}
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </div>
+      <Dropper />
     </div>
   );
 };

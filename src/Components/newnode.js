@@ -1,13 +1,15 @@
 import React from 'react'
-import { Handle, Position } from 'reactflow'
+import { Background, Handle, Position } from 'reactflow'
 
-const newnode = () => {
+const newnode = ({data}) => {
+
   return (
     <>
     <div>
-        <Handle type="target" id="c1" postion={Position.Top}/>
-        <div className='bg-[#F78CA2] p-2 text-black font-bold '> Pink Node</div>
+        <Handle type="source" id="c1" position={Position.Top}/>
+        <div className={`hover:bg-black  border-2 border-white font-bold  rounded-md p-2 my-2 text-white `}  style={{ backgroundColor: data.color }}>{data.label}</div>
     </div>
+        <Handle type="target" id="c2" position={Position.Bottom}/>    
     </>
   )
 }
