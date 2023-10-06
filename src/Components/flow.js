@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -8,7 +8,11 @@ import ReactFlow, {
   Controls,
   ReactFlowProvider,
   useReactFlow,
+  getConnectedEdges,
+
+
 } from "reactflow";
+import clipboard from "clipboard-copy";
 import "reactflow/dist/style.css";
 import Newtextnode from "./Newtextnode";
 import customNode from "./customnode";
@@ -53,7 +57,10 @@ const getId = () => `dndnode_${nodeid++}`;
 
 //The Main Component
 const Flow = () => {
+  const reactflow = useReactFlow()
   // all states
+  const [selectedEdges, setSelectedEdges] = useState(null)
+  const [selectedNodes, setSelectedNodes] = useState(null)
   const [edges, setEdge, onEdgesChange] = useEdgesState(initialEdges);
   const [nodes, setNode, onNodesChange] = useNodesState(initialnode);
   const reactflowbox = useRef();
@@ -65,6 +72,79 @@ const Flow = () => {
     event.dataTransfer.dropEffect = "move";
   }, []);
 
+  //Selecting function
+  const selectionchange = useCallback(
+    (event) => {
+
+            setSelectedNodes(event.nodes)
+        setSelectedEdges(getConnectedEdges(event.nodes,reactflow.getEdges()))
+
+      },
+    [],
+  )
+  useEffect(() => {
+  
+  }, [selectedNodes])
+  useEffect(() => {
+  
+  }, [selectedEdges])
+  
+
+  //copying
+ 
+
+  function copyItems(event){
+  
+    const data = {
+      nodes: selectedNodes,
+      edges: selectedEdges
+    }
+    const ob = JSON.stringify(data);
+    clipboard(ob)
+  
+
+  }
+  const pasteItems = async ()=>{
+    const textFromClipboard = await navigator.clipboard.readText();
+    const ob = JSON.parse(textFromClipboard)
+    console.log(ob)
+    const now = Date.now();
+    if(ob.nodes && ob.nodes.length>0){
+      ob.nodes.forEach(element => {
+        element.id =`${element.id}_${now}`;
+      
+      });
+    }
+    if(ob.edges && ob.edges.length>0){
+      ob.edges.forEach(element=>{
+        element.source = `${element.source}_${now}`
+        element.target = `${element.target}_${now}`
+        element.id = `${element.id}_${now}`
+      })
+    }
+
+    reactflow.addNodes(ob.nodes);
+    nodes.forEach(element => {
+      element.selected = false
+    });
+    setNode((prev)=>nodes);
+    setNode((prev)=>[...prev, ...ob.nodes])
+    setEdge((prev)=>[...prev, ...ob.edges])
+
+  }
+// cut function
+  const cutItems = async ()=>{
+    const data = {
+      nodes: selectedNodes,
+      edges: selectedEdges
+    }
+    const ob = JSON.stringify(data);
+    clipboard(ob)
+    const newnodes =  nodes.filter((item)=>!selectedNodes.includes(item))
+    console.log(newnodes)
+    setNode(newnodes)
+  console.log(nodes)
+   }
   const edgesd = {
     style: { strokeWidth: 3, stroke: "white" },
 
@@ -103,7 +183,7 @@ const Flow = () => {
   );
 
   // adding edge
-  const addedge = useCallback(() => {
+  const addnode = useCallback(() => {
     const id = `${++nodeid}`;
     const newnode = {
       id,
@@ -114,17 +194,32 @@ const Flow = () => {
     reactflowinstance.addNodes(newnode);
   }, []);
 
+
+  useEffect(() => {
+    window.addEventListener("copy",copyItems)
+    window.addEventListener("paste",pasteItems)
+    window.addEventListener("cut",cutItems)
+  
+    return () => {
+      window.removeEventListener("copy",copyItems)
+      window.removeEventListener("paste",pasteItems)
+      window.removeEventListener("cut",cutItems)
+    }
+  }, [selectedNodes,selectedEdges])
+  
   const onConnect = useCallback(
-    (params) => {console.log(params);
-    if(params.source !== params.target) {setEdge((eds) => addEdge(params, eds))}},
+    (params) => {if(params.source !== params.target) {setEdge((eds) => addEdge(params, eds))}},
     [setEdge]
   );
   return (
-    <div className="flex flex-col md:flex-row-reverse  space-x-10 items-center gap-5 p-2">
+    <div className="flex flex-col md:flex-row-reverse  justify-center space-x-10 items-center gap-5 p-2">
       <div
-        className="md:h-[40rem] md:w-[40rem] h-full w-full m-auto"
+        className="md:h-[40rem] md:w-[40rem] my-4 h-full w-full m-auto"
         ref={reactflowbox}
       >
+        <button onClick={()=>{copyItems()}} className="border-gray-950 border-2  mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm">Copy</button>
+        <button onClick={()=>{pasteItems()}} className="border-gray-950 border-2 mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm">Paste</button>
+        <button onClick={()=>{cutItems()}} className="border-gray-950 border-2 mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm">Cut</button>
         <ReactFlow
           style={{ backgroundColor: "#D80032", border: "5px solid gray" }}
           edges={edges}
@@ -135,6 +230,7 @@ const Flow = () => {
           onEdgesChange={onEdgesChange}
           defaultEdgeOptions={edgesd}
           fitView
+          onSelectionChange={selectionchange}
           onDrop={onDrop}
           nodeTypes={newnode}
           onDragOver={dragoverstart}

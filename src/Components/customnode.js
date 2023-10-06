@@ -4,7 +4,7 @@ const connectionNodeIdSelector = (state) => state.connectionNodeId;
 
 const sourceStyle = { zIndex: 1 };
 
-export default function CustomNode({ id }) {
+export default function CustomNode({ id ,selected}) {
   const connectionNodeId = useStore(connectionNodeIdSelector);
 
   const isConnecting = !!connectionNodeId;
@@ -12,7 +12,7 @@ export default function CustomNode({ id }) {
   const label = isTarget ? 'Drop here' : 'Drag to connect';
 
   return (
-    <div className="customNode">
+    <div className={`customNode ${selected && "ring-2 ring-offset-1 rounded-[10px]"} `}>
       <div
         className="customNodeBody"
         style={{

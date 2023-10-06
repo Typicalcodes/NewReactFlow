@@ -55,7 +55,7 @@ export default function CustomEdge({
     )
 
   useEffect(() => {
-    console.log(showClose);
+    
   }, [showClose]);
 
   return (

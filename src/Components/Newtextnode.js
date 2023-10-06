@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Handle, Position,useStore } from "reactflow";
 
 const connectionIdselector = (state)=>state.connectionNodeId;
-const Newtextnode = ({data, id}) => {
+const Newtextnode = ({data, id, selected}) => {
   const connectionNodeId = useStore(connectionIdselector);
   const [modal, setModal] = useState(false);
   const [detail,setDetail]= useState("");
@@ -40,7 +40,7 @@ const Newtextnode = ({data, id}) => {
            </p>
         </div>)}
           
-        <div className="w-fit h-fit relative  p-2">
+        <div className={`${selected && "ring-2 ring-offset-1 rounded-[10px]"} w-fit h-fit relative  p-2 `}>
           
             <div onClick={()=>{openmodal("I am rectangle")}} className="nodrag abosulte bg-[#3D0C11] rounded-lg px-[60px] py-[30px]"></div>
             
