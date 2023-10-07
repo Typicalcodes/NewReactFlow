@@ -9,6 +9,7 @@ import ReactFlow, {
   ReactFlowProvider,
   useReactFlow,
   getConnectedEdges,
+  Panel,
 
 
 } from "reactflow";
@@ -24,6 +25,7 @@ import Floatingedge from "./floatingedge";
 import Dropper from "./Dropper";
 import newnoder from "./newnode";
 import CustomEdge from "./customedge";
+import DownloadButton from "./DownloadButton";
 
 const newnode = {
   textupdate: Newtextnode,
@@ -140,10 +142,10 @@ const Flow = () => {
     }
     const ob = JSON.stringify(data);
     clipboard(ob)
-    const newnodes =  nodes.filter((item)=>!selectedNodes.includes(item))
+    const newnodes = nodes.filter((item)=>{ return !selectedNodes.some((removeItem) => removeItem.id === item.id)})
     console.log(newnodes)
     setNode(newnodes)
-  console.log(nodes)
+
    }
   const edgesd = {
     style: { strokeWidth: 3, stroke: "white" },
@@ -211,6 +213,20 @@ const Flow = () => {
     (params) => {if(params.source !== params.target) {setEdge((eds) => addEdge(params, eds))}},
     [setEdge]
   );
+
+  // SAVE FUNCTION
+  function saveFlow(){
+
+      const element = document.createElement("a");
+      const file = new Blob([document.getElementById('input').value],    
+                  {type: 'text/plain;charset=utf-8'});
+      element.href = URL.createObjectURL(file);
+      element.download = "myFile.txt";
+      document.body.appendChild(element);
+      element.click();
+    
+  }
+  // return
   return (
     <div className="flex flex-col md:flex-row-reverse  justify-center space-x-10 items-center gap-5 p-2">
       <div
@@ -239,6 +255,10 @@ const Flow = () => {
           connectionLineComponent={customlineComponent}
           connectionLineStyle={connectionLineStyle}
         >
+          <DownloadButton/>
+          <Panel position="top-left">
+            <button onClick={()=>{saveFlow()}} className="bg-black px-4 py-2 text-white font-semibold hover:text-gray-200 rounded">Game OVer</button>
+          </Panel>
           <Background />
           <Controls />
         </ReactFlow>
