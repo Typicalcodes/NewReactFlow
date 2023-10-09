@@ -10,8 +10,6 @@ import ReactFlow, {
   useReactFlow,
   getConnectedEdges,
   Panel,
-
-
 } from "reactflow";
 import clipboard from "clipboard-copy";
 import "reactflow/dist/style.css";
@@ -40,33 +38,49 @@ const newedge = {
 
 const initialnode = [
   {
-    id: "34",
-    type: "CustomNode",
-    position: { x: 300, y: 100 },
+    id: "35",
+    type: "Newnode",
+    position: {x:310, y :250},
+    data: { label: "Color Node", color: "#5c3838" },
   },
+  {
+    id: "36",
+    type: "Newnode",
+    position: {x:400, y :280},
+    data: { label: "Color Node", color: "#1c3453" },
+  },
+  {
+    id: "37",
+    type: "Newnode",
+    position: {x:210, y :400},
+    data: { label: "Color Node", color: "#9d2348" },
+  },
+
 ];
 
 let nodeid = 0;
 
 const connectionLineStyle = {
   strokeWidth: 3,
-  stroke: "white",
+  stroke: "#ccd9f6",
 };
 
 const initialEdges = [];
 
 const getId = () => `dndnode_${nodeid++}`;
 
-//The Main Component
+const flowKey = "example-flow";
+//NOTE The Main Component
 const Flow = () => {
-  const reactflow = useReactFlow()
-  // all states
-  const [selectedEdges, setSelectedEdges] = useState(null)
-  const [selectedNodes, setSelectedNodes] = useState(null)
+  const reactflow = useReactFlow();
+  // NOTE All States
+  const [selectedEdges, setSelectedEdges] = useState(null);
+  const [selectedNodes, setSelectedNodes] = useState(null);
   const [edges, setEdge, onEdgesChange] = useEdgesState(initialEdges);
   const [nodes, setNode, onNodesChange] = useNodesState(initialnode);
   const reactflowbox = useRef();
   const [reactflowinstance, setReactflowinstance] = useState(null);
+  const [doc, setDoc] = useState(null);
 
   // drag function
   const dragoverstart = useCallback((event) => {
@@ -75,78 +89,62 @@ const Flow = () => {
   }, []);
 
   //Selecting function
-  const selectionchange = useCallback(
-    (event) => {
-
-            setSelectedNodes(event.nodes)
-        setSelectedEdges(getConnectedEdges(event.nodes,reactflow.getEdges()))
-
-      },
-    [],
-  )
-  useEffect(() => {
-  
-  }, [selectedNodes])
-  useEffect(() => {
-  
-  }, [selectedEdges])
-  
+  const selectionchange = useCallback((event) => {
+    setSelectedNodes(event.nodes);
+    setSelectedEdges(getConnectedEdges(event.nodes, reactflow.getEdges()));
+  }, []);
+  useEffect(() => {}, [selectedNodes,doc]);
+  useEffect(() => {}, [selectedEdges]);
 
   //copying
- 
-
-  function copyItems(event){
-  
+  function copyItems(event) {
     const data = {
       nodes: selectedNodes,
-      edges: selectedEdges
-    }
+      edges: selectedEdges,
+    };
     const ob = JSON.stringify(data);
-    clipboard(ob)
-  
-
+    clipboard(ob);
   }
-  const pasteItems = async ()=>{
+  const pasteItems = async () => {
     const textFromClipboard = await navigator.clipboard.readText();
-    const ob = JSON.parse(textFromClipboard)
-    console.log(ob)
+    const ob = JSON.parse(textFromClipboard);
+    console.log(ob);
     const now = Date.now();
-    if(ob.nodes && ob.nodes.length>0){
-      ob.nodes.forEach(element => {
-        element.id =`${element.id}_${now}`;
-      
+    if (ob.nodes && ob.nodes.length > 0) {
+      ob.nodes.forEach((element) => {
+        element.id = `${element.id}_${now}`;
       });
     }
-    if(ob.edges && ob.edges.length>0){
-      ob.edges.forEach(element=>{
-        element.source = `${element.source}_${now}`
-        element.target = `${element.target}_${now}`
-        element.id = `${element.id}_${now}`
-      })
+    if (ob.edges && ob.edges.length > 0) {
+      ob.edges.forEach((element) => {
+        element.source = `${element.source}_${now}`;
+        element.target = `${element.target}_${now}`;
+        element.id = `${element.id}_${now}`;
+      });
     }
 
     reactflow.addNodes(ob.nodes);
-    nodes.forEach(element => {
-      element.selected = false
+    nodes.forEach((element) => {
+      element.selected = false;
     });
-    setNode((prev)=>nodes);
-    setNode((prev)=>[...prev, ...ob.nodes])
-    setEdge((prev)=>[...prev, ...ob.edges])
-
-  }
-// cut function
-  const cutItems = async ()=>{
+    setNode((prev) => nodes);
+    setNode((prev) => [...prev, ...ob.nodes]);
+    setEdge((prev) => [...prev, ...ob.edges]);
+  };
+  //NOTE cut function
+  const cutItems = async () => {
     const data = {
       nodes: selectedNodes,
-      edges: selectedEdges
-    }
+      edges: selectedEdges,
+    };
     const ob = JSON.stringify(data);
-    clipboard(ob)
-    const newnodes = nodes.filter((item)=>{ return !selectedNodes.some((removeItem) => removeItem.id === item.id)})
-    console.log(newnodes)
-    setNode(newnodes)
-
-   }
+    clipboard(ob);
+    const newnodes = nodes.filter((item) => {
+      return !selectedNodes.some((removeItem) => removeItem.id === item.id);
+    });
+    console.log(newnodes);
+    setNode(newnodes);
+  };
   const edgesd = {
     style: { strokeWidth: 3, stroke: "white" },
 
@@ -156,7 +154,7 @@ const Flow = () => {
       color: "white",
     },
   };
-  // drop function
+  //NOTE drop function
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
@@ -196,48 +194,113 @@ const Flow = () => {
     reactflowinstance.addNodes(newnode);
   }, []);
 
-
   useEffect(() => {
-    window.addEventListener("copy",copyItems)
-    window.addEventListener("paste",pasteItems)
-    window.addEventListener("cut",cutItems)
-  
+    window.addEventListener("copy", copyItems);
+    window.addEventListener("paste", pasteItems);
+    window.addEventListener("cut", cutItems);
+
     return () => {
-      window.removeEventListener("copy",copyItems)
-      window.removeEventListener("paste",pasteItems)
-      window.removeEventListener("cut",cutItems)
-    }
-  }, [selectedNodes,selectedEdges])
-  
+      window.removeEventListener("copy", copyItems);
+      window.removeEventListener("paste", pasteItems);
+      window.removeEventListener("cut", cutItems);
+    };
+  }, [selectedNodes, selectedEdges]);
+
   const onConnect = useCallback(
-    (params) => {if(params.source !== params.target) {setEdge((eds) => addEdge(params, eds))}},
+    (params) => {
+      if (params.source !== params.target) {
+        setEdge((eds) => addEdge(params, eds));
+      }
+    },
     [setEdge]
   );
 
-  // SAVE FUNCTION
-  function saveFlow(){
+  //NOTE save function
+  const saveFlow = useCallback(() => {
+    if (reactflowinstance) {
+      const flow = reactflowinstance.toObject();
+      const string = JSON.stringify(flow);
 
       const element = document.createElement("a");
-      const file = new Blob([document.getElementById('input').value],    
-                  {type: 'text/plain;charset=utf-8'});
+      const file = new Blob([string], {
+        type: "text/plain;charset=utf-8",
+      });
       element.href = URL.createObjectURL(file);
       element.download = "myFile.txt";
       document.body.appendChild(element);
       element.click();
-    
+    }
+  }, [reactflowinstance]);
+
+//NOTE handlefilesumbit
+function handleFileChange(event) {
+  const file = event.target.files[0];
+
+  if (file) {
+    // Read the contents of the selected file
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      // e.target.result contains the text content of the file
+      const fileContent = e.target.result;
+
+      // Now you can do something with the file content, like displaying it in the component's state or rendering it in your UI.
+      setDoc((prev)=>fileContent)
+    };
+
+    // Read the file as text
+    const text = reader.readAsText(file)
+    console.log(text)    
   }
-  // return
+}
+// NOTE  loading files  
+  const loadfile = useCallback(() => {
+     const flow = JSON.parse(doc);
+    console.log(doc)
+    if (flow) {
+      
+      setNode(flow.nodes || []);
+      setEdge(flow.edges || []);
+     
+    }
+    
+  }, [doc]);
+
+
+
+  //NOTE return
   return (
     <div className="flex flex-col md:flex-row-reverse  justify-center space-x-10 items-center gap-5 p-2">
       <div
-        className="md:h-[40rem] md:w-[40rem] my-4 h-full w-full m-auto"
+        className="md:h-[45rem] md:w-[50rem] mt-4 mx-2 h-full w-full m-auto"
         ref={reactflowbox}
       >
-        <button onClick={()=>{copyItems()}} className="border-gray-950 border-2  mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm">Copy</button>
-        <button onClick={()=>{pasteItems()}} className="border-gray-950 border-2 mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm">Paste</button>
-        <button onClick={()=>{cutItems()}} className="border-gray-950 border-2 mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm">Cut</button>
+        <button
+          onClick={() => {
+            copyItems();
+          }}
+          className="border-gray-950 border-2  mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm"
+        >
+          Copy
+        </button>
+        <button
+          onClick={() => {
+            pasteItems();
+          }}
+          className="border-gray-950 border-2 mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm"
+        >
+          Paste
+        </button>
+        <button
+          onClick={() => {
+            cutItems();
+          }}
+          className="border-gray-950 border-2 mx-2 hover:bg-black hover:text-white hover:font-bold font-bold bg-white my-1 py-2 px-4 rounded-sm"
+        >
+          Cut
+        </button>
         <ReactFlow
-          style={{ backgroundColor: "#D80032", border: "5px solid gray" }}
+          style={{ backgroundColor: "#F7F7F7", border: "  " }}
           edges={edges}
           nodes={nodes}
           onConnect={onConnect}
@@ -255,9 +318,27 @@ const Flow = () => {
           connectionLineComponent={customlineComponent}
           connectionLineStyle={connectionLineStyle}
         >
-          <DownloadButton/>
-          <Panel position="top-left">
-            <button onClick={()=>{saveFlow()}} className="bg-black px-4 py-2 text-white font-semibold hover:text-gray-200 rounded">Game OVer</button>
+          <DownloadButton />
+          <Panel className="flex space-x-2" position="top-left">
+            <button
+              onClick={() => {
+                saveFlow();
+              }}
+              className="bg-black px-4 py-2 text-white font-semibold hover:text-gray-200 rounded"
+            >
+              Save
+            </button>
+            <div className="border bg-black rounded-md py-1">
+            <input type="file" accept=".txt" onChange={handleFileChange} className="ml-2 rounded-md w-[200px] text-white bg-black"/>
+            <button
+              onClick={() => {
+                loadfile()
+              }}
+              className="bg-black px-4 py-2 text-white font-semibold hover:text-gray-200 rounded"
+            >
+              Load
+            </button>
+            </div>
           </Panel>
           <Background />
           <Controls />

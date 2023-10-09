@@ -12,7 +12,7 @@ function CustomConnectionLine({ fromX, fromY, toX, toY, connectionLineStyle }) {
   return (
     <g>
       <path style={connectionLineStyle} fill="none" d={edgePath} />
-      <circle cx={toX} cy={toY} fill="white" r={3} stroke="white" strokeWidth={1.5} />
+      <circle cx={toX} cy={toY} fill="white" r={3} stroke="#ccd9f6" strokeWidth={1.5} />
     </g>
   );
 }

@@ -3,7 +3,7 @@ import { useStore } from "reactflow";
 const selectnodes = (state)=>state.getNodes;
 const Dropper = () => {
   const getNodes = useStore(selectnodes)
-  const [Color, setColor] = useState("");
+  const [Color, setColor] = useState("#F78CA2");
   const [label, setLabel] = useState("New Node");
   useEffect(() => {
  
@@ -36,7 +36,7 @@ const Dropper = () => {
             draggable
             style={{ backgroundColor: Color ,color : Color ? "white":"black" }}
           >
-           <input value={label} className="border  px-2  py-2 text-black rounded-md " placeholder="Type text Here" onChange={(e)=>setLabel((prev)=>e.target.value)}/>
+           <input value={label} className="border-2  px-2  py-2 text-black rounded-md " placeholder="Type text Here" onChange={(e)=>setLabel((prev)=>e.target.value)}/>
           
           <div className="flex justify-center space-x-2">
           <span className="text-center font-semibold ">Color</span>

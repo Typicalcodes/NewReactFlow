@@ -23,7 +23,7 @@ function DownloadButton() {
     const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2);
 
     toPng(document.querySelector('.react-flow__viewport'), {
-      backgroundColor: '#D80032',
+      backgroundColor: '#F7F7F7',
       width: imageWidth,
       height: imageHeight,
       style: {

@@ -68,7 +68,7 @@ export default function CustomEdge({
         onMouseOut={() => {
           hide();
         }}
-        className="stroke-white stroke-[4px] hover:stroke-[#F78CA2]"
+        className="stroke-[#ccd9f6] stroke-[4px] hover:stroke-[#F78CA2]"
         d={edgePath}
       />
     {showClose && <EdgeLabelRenderer>
@@ -83,7 +83,7 @@ export default function CustomEdge({
           }}
           className="nodrag nopan"
         >
-          <button className="p-1 rounded-full transition-opacity duration-100 delay-100 text-slate-400 bg-white" onClick={(e)=>{onDelete(e,id)}}>
+          <button className="p-1 rounded-full transition-opacity duration-100 delay-100 text-slate-400 bg-gray-500" onClick={(e)=>{onDelete(e,id)}}>
             ×
           </button>
         </div>
